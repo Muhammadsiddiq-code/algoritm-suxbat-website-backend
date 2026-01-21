@@ -98,7 +98,7 @@ const Category = require("../models/Category");
 const Question = require("../models/Question");
 const Teacher = require("../models/Teacher");
 
-// Bo'lim yaratish
+// Bo'limlar
 router.post("/categories", async (req, res) => {
   try {
     const { name } = req.body;
@@ -109,7 +109,6 @@ router.post("/categories", async (req, res) => {
   }
 });
 
-// Barcha bo'limlarni olish
 router.get("/categories", async (req, res) => {
   try {
     const categories = await Category.findAll({
@@ -121,7 +120,6 @@ router.get("/categories", async (req, res) => {
   }
 });
 
-// Bo'limni o'chirish
 router.delete("/categories/:id", async (req, res) => {
   try {
     await Category.destroy({ where: { id: req.params.id } });
@@ -131,7 +129,7 @@ router.delete("/categories/:id", async (req, res) => {
   }
 });
 
-// Savol qo'shish
+// Savollar
 router.post("/questions", async (req, res) => {
   try {
     const { text, categoryId } = req.body;
@@ -142,7 +140,6 @@ router.post("/questions", async (req, res) => {
   }
 });
 
-// Bo'lim bo'yicha savollarni olish
 router.get("/questions/:categoryId", async (req, res) => {
   try {
     const questions = await Question.findAll({
@@ -154,7 +151,6 @@ router.get("/questions/:categoryId", async (req, res) => {
   }
 });
 
-// Savolni o'chirish
 router.delete("/questions/:id", async (req, res) => {
   try {
     await Question.destroy({ where: { id: req.params.id } });
@@ -164,7 +160,7 @@ router.delete("/questions/:id", async (req, res) => {
   }
 });
 
-// O'qituvchi yaratish
+// O'qituvchilar
 router.post("/teachers", async (req, res) => {
   try {
     const { fullName, login, password } = req.body;
@@ -175,7 +171,6 @@ router.post("/teachers", async (req, res) => {
   }
 });
 
-// Barcha o'qituvchilarni olish
 router.get("/teachers", async (req, res) => {
   try {
     const teachers = await Teacher.findAll({
@@ -187,7 +182,23 @@ router.get("/teachers", async (req, res) => {
   }
 });
 
-// O'qituvchini o'chirish
+// O'qituvchini tahrirlash (YANGI)
+router.put("/teachers/:id", async (req, res) => {
+  try {
+    const { fullName, login, password } = req.body;
+    const teacher = await Teacher.findByPk(req.params.id);
+
+    if (!teacher) {
+      return res.status(404).json({ error: "O'qituvchi topilmadi" });
+    }
+
+    await teacher.update({ fullName, login, password });
+    res.json(teacher);
+  } catch (error) {
+    res.status(400).json({ error: error.message });
+  }
+});
+
 router.delete("/teachers/:id", async (req, res) => {
   try {
     await Teacher.destroy({ where: { id: req.params.id } });

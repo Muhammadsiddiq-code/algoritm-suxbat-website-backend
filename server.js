@@ -3,7 +3,15 @@
 // const cors = require("cors");
 // const sequelize = require("./config/database");
 // const adminRoutes = require("./routes/adminRoutes");
-// const userRoutes = require("./routes/userRoutes");
+// const teacherRoutes = require("./routes/teacherRoutes");
+
+// // Models import
+// require("./models/Teacher");
+// require("./models/Group");
+// require("./models/Student");
+// require("./models/Interview");
+// require("./models/Category");
+// require("./models/Question");
 
 // const app = express();
 
@@ -11,9 +19,9 @@
 // app.use(express.json());
 
 // app.use("/api/admin", adminRoutes);
-// app.use("/api/user", userRoutes);
+// app.use("/api/teacher", teacherRoutes);
 
-// const PORT = process.env.PORT || 5000;
+// const PORT = process.env.PORT || 5001;
 
 // sequelize
 //   .sync({ alter: true })
@@ -40,42 +48,59 @@
 
 
 
-
-
-
-
-
-
-
 require("dotenv").config();
 const express = require("express");
 const cors = require("cors");
+
 const sequelize = require("./config/database");
+
+// Routes
 const adminRoutes = require("./routes/adminRoutes");
 const teacherRoutes = require("./routes/teacherRoutes");
 
-// Models import qilish (relations uchun)
+// Models (tartib MUHIM)
 require("./models/Teacher");
+require("./models/Group");
+require("./models/Student");
 require("./models/Interview");
+require("./models/Category");
+require("./models/Question");
 
 const app = express();
 
+/* ================= MIDDLEWARE ================= */
 app.use(cors());
 app.use(express.json());
 
+/* ================= ROUTES ================= */
 app.use("/api/admin", adminRoutes);
 app.use("/api/teacher", teacherRoutes);
 
-const PORT = process.env.PORT || 5001;
+/* ================= HEALTH CHECK ================= */
+app.get("/", (req, res) => {
+  res.json({
+    status: "OK",
+    message: "Quiz App Backend is running",
+  });
+});
 
-sequelize
-  .sync({ alter: true })
-  .then(() => {
+/* ================= SERVER START ================= */
+const PORT = process.env.PORT || 5000;
+
+(async () => {
+  try {
+    await sequelize.authenticate();
+    console.log("PostgreSQL connected");
+
+    // Production uchun alter tavsiya qilinmaydi
+    await sequelize.sync({ alter: true });
     console.log("Database synced");
+
     app.listen(PORT, () => {
       console.log(`Server running on port ${PORT}`);
     });
-  })
-  .catch((err) => {
-    console.error("Database sync error:", err);
-  });
+  } catch (error) {
+    console.error("Server start error:", error);
+    process.exit(1);
+  }
+})();
